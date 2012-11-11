@@ -1,0 +1,37 @@
+abbr {
+    font-size: 10px;
+}
+
+.sidebar {
+    height: 600px;
+    margin-left: 0px;
+}
+
+.survivorList {
+    margin-left: 0px;
+    width: 220px;
+}
+
+.survivorList {
+    border-right:2px solid #CCC;
+}
+
+.survivorName {
+    display: block;
+}
+
+.healthbarWrapper {
+    height: 40px;
+    width: 3px;
+    background-color: #FF0000;
+}
+
+.healthbar {
+    height: 20px;
+    width: 3px;
+    background-color: #00d23f;
+}
+
+.mCSB_container {
+    margin-right: 8px;
+}
