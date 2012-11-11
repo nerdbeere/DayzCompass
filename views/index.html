@@ -23,7 +23,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="span3 sidebar">
-                <table class="table table-striped survivorList">
+                <table class="table table-striped survivorList table-hover">
                     <tbody data-bind="foreach: survivors">
                         <tr data-bind="attr: {'data-humanity': humanity}">
                             <td>
@@ -32,14 +32,16 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="#" class="survivorName"><i data-bind="text: name"></i></a>
+                                <span class="survivorName" data-bind="attr: {'data-unique_id': unique_id}, text: name"></span>
                                 <abbr data-bind="text: timeago"></abbr>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="span9"></div>
+            <div class="span9">
+                <h1 data-bind="text: survivorName"></h1>
+            </div>
         </div>
     </div>
     <script type="text/javascript">

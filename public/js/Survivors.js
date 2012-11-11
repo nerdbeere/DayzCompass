@@ -1,9 +1,11 @@
 var Survivors = function() {
     "use strict";
 
-    var survivors;
+    var survivors = [];
+    var selectedSurvivor = null;
     var viewModel = {
-        survivors: ko.observableArray([])
+        survivors: ko.observableArray([]),
+        survivorName: ko.observable('')
     };
 
     function loadSurvivors(callback) {
@@ -12,6 +14,9 @@ var Survivors = function() {
             survivors = addTimestamps(survivors);
             viewModel.survivors.removeAll();
             for(var i = 0; i < survivors.length; i++) {
+                if(selectedSurvivor == survivors[i].unique_id) {
+                    viewModel.survivorName(survivors[i].name);
+                }
                 viewModel.survivors.push(survivors[i]);
             }
             if(typeof callback === 'function') {
@@ -66,6 +71,11 @@ var Survivors = function() {
 
     loadSurvivors(init);
     window.setInterval(loadSurvivors, 2000);
+
+    $('.survivorList tr').live('click', function() {
+        selectedSurvivor = $('.survivorName', this).data('unique_id');
+        loadSurvivors();
+    });
 
     return {
 

@@ -16,6 +16,10 @@ abbr {
     border-right:2px solid #CCC;
 }
 
+.survivorList tr {
+    cursor: pointer;
+}
+
 .survivorName {
     display: block;
 }
