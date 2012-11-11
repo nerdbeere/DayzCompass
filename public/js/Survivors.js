@@ -2,13 +2,18 @@ var Survivors = function() {
     "use strict";
 
     var survivors;
-    var viewModel = {};
+    var viewModel = {
+        survivors: ko.observableArray([])
+    };
 
     function loadSurvivors(callback) {
         $.getJSON('/get_survivors', function(data) {
             survivors = data;
             survivors = addTimestamps(survivors);
-            viewModel.survivors = survivors;
+            viewModel.survivors.removeAll();
+            for(var i = 0; i < survivors.length; i++) {
+                viewModel.survivors.push(survivors[i]);
+            }
             if(typeof callback === 'function') {
                 callback();
             }
