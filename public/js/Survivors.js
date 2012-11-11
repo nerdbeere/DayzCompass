@@ -59,6 +59,9 @@ var Survivors = function() {
         $(".sidebar").mCustomScrollbar({
             scrollInertia: 0
         });
+        $(window).resize(function() {
+            $(".sidebar").height($(window).height());
+        });
     }
 
     loadSurvivors(init);
