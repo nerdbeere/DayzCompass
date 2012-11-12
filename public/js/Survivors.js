@@ -1,8 +1,10 @@
-var Survivors = function() {
+var Survivors = (function() {
     "use strict";
 
     var survivors = [];
     var selectedSurvivor = null;
+    var renderedWeapons = 0;
+    var weaponCount = 0;
     var viewModel = {
         survivors: ko.observableArray([]),
         weapons: ko.observableArray([]),
@@ -25,13 +27,14 @@ var Survivors = function() {
             }
             calcHealthbar();
             determineRowColor();
-            $(".sidebar").mCustomScrollbar('update');
         });
     }
 
 	function loadWeapons(callback) {
+        renderedWeapons = 0;
 		$.getJSON('/get_weapon_stats', function(data) {
 			viewModel.weapons.removeAll();
+            weaponCount = data.length;
 			for(var i = 0; i < data.length; i++) {
 				viewModel.weapons.push(data[i]);
 			}
@@ -50,7 +53,7 @@ var Survivors = function() {
 
     function init() {
         ko.applyBindings(viewModel);
-        calcSidebarHeight();
+        calcSidebarHeight($('.sidebar'));
     }
 
     function addTimestamps(survivors) {
@@ -79,13 +82,20 @@ var Survivors = function() {
         });
     }
 
-    function calcSidebarHeight() {
-        $(".sidebar").height($(window).height());
-        $(".sidebar").mCustomScrollbar({
+    function calcSidebarHeight($elem, offset) {
+        if($elem.hasClass('mCustomScrollbar')) {
+            return $elem.mCustomScrollbar('update');
+        }
+        if(typeof offset === 'undefined') {
+            offset = 0;
+        }
+        $elem.height($(window).height() - offset);
+        $elem.mCustomScrollbar({
             scrollInertia: 0
         });
         $(window).resize(function() {
-            $(".sidebar").height($(window).height());
+            $elem.height($(window).height() - offset);
+            $elem.mCustomScrollbar('update');
         });
     }
 
@@ -107,6 +117,11 @@ var Survivors = function() {
 		}
 	}
 
+    function loadData() {
+        loadSurvivors();
+        loadWeapons();
+    }
+
     $('.survivorList tr').live('click', function() {
 		var uniqueId = $('.survivorName', this).data('unique_id');
 		changeHash('survivor', uniqueId);
@@ -116,11 +131,19 @@ var Survivors = function() {
 		treatHashChange();
 	});
 
-	treatHashChange();
-	loadSurvivors(init);
-	window.setInterval(loadSurvivors, 2000);
+    $().ready(function() {
+        treatHashChange();
+        loadSurvivors(init);
+        window.setInterval(loadData, 2000);
+    });
 
     return {
-
+        afterRenderItems: function(data) {
+            renderedWeapons++;
+            if(renderedWeapons === weaponCount) {
+                calcSidebarHeight($('.itemTable'), 40);
+                $('#loadingOverlay').fadeOut();
+            }
+        }
     };
-};
+})();
