@@ -5,7 +5,8 @@ var Survivors = function() {
     var selectedSurvivor = null;
     var viewModel = {
         survivors: ko.observableArray([]),
-        survivorName: ko.observable('')
+        weapons: ko.observableArray([]),
+        headline: ko.observable('Dashboard')
     };
 
     function loadSurvivors(callback) {
@@ -15,7 +16,7 @@ var Survivors = function() {
             viewModel.survivors.removeAll();
             for(var i = 0; i < survivors.length; i++) {
                 if(selectedSurvivor == survivors[i].unique_id) {
-                    viewModel.survivorName(survivors[i].name);
+                    viewModel.headline(survivors[i].name);
                 }
                 viewModel.survivors.push(survivors[i]);
             }
@@ -27,6 +28,25 @@ var Survivors = function() {
             $(".sidebar").mCustomScrollbar('update');
         });
     }
+
+	function loadWeapons(callback) {
+		$.getJSON('/get_weapon_stats', function(data) {
+			viewModel.weapons.removeAll();
+			for(var i = 0; i < data.length; i++) {
+				viewModel.weapons.push(data[i]);
+			}
+			if(typeof callback === 'function') {
+				callback();
+			}
+		});
+	}
+
+	function startDashboard() {
+		loadWeapons(function() {
+			selectedSurvivor = null;
+			viewModel.headline('Dashboard');
+		});
+	}
 
     function init() {
         ko.applyBindings(viewModel);
@@ -69,13 +89,36 @@ var Survivors = function() {
         });
     }
 
-    loadSurvivors(init);
-    window.setInterval(loadSurvivors, 2000);
+	function changeHash(key, value) {
+		window.location.hash = key + ':' + value;
+	}
+
+	function treatHashChange() {
+		var hashParts = window.location.hash.split(':');
+		var key = hashParts[0].replace(/#/g, '');
+		var value = hashParts[1];
+
+		if(key == 'survivor') {
+			selectedSurvivor = value;
+			loadSurvivors();
+		}
+		if(key == '') {
+			startDashboard();
+		}
+	}
 
     $('.survivorList tr').live('click', function() {
-        selectedSurvivor = $('.survivorName', this).data('unique_id');
-        loadSurvivors();
+		var uniqueId = $('.survivorName', this).data('unique_id');
+		changeHash('survivor', uniqueId);
     });
+
+	$(window).hashchange(function() {
+		treatHashChange();
+	});
+
+	treatHashChange();
+	loadSurvivors(init);
+	window.setInterval(loadSurvivors, 2000);
 
     return {
 

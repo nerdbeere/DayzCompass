@@ -15,6 +15,7 @@
     <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js'></script>
     <script src="/js/bootstrap.js"></script>
     <script src="/js/jquery.mousewheel.min.js"></script>
+    <script src="/js/hashchange.min.js"></script>
     <script src="/js/timeago.js"></script>
     <script src="/js/Survivors.js"></script>
     <script src="/js/scrollbar.js"></script>
@@ -22,7 +23,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="span3 sidebar">
+            <div class="span3 scrollbar sidebar">
                 <table class="table table-striped survivorList table-hover">
                     <tbody data-bind="foreach: survivors">
                         <tr data-bind="attr: {'data-humanity': humanity}">
@@ -40,7 +41,40 @@
                 </table>
             </div>
             <div class="span9">
-                <h1 data-bind="text: survivorName"></h1>
+                <div class="navbar navbar-fixed-top">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <div class="nav-collapse collapse">
+                                <a class="brand" data-bind="text: headline"></a>
+                                <div class="nav-collapse collapse">
+                                    <ul class="nav">
+                                        <li class="active"><a href="#">Dashboard</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dashboard">
+                    <div class="span3 scrollbar">
+                        <table class="table table-striped table-hover itemTable">
+                            <tbody data-bind="foreach: weapons">
+                                <tr>
+                                    <td data-bind="text: name"></td>
+                                    <td>
+                                        <span class="badge" data-bind="text: amount"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

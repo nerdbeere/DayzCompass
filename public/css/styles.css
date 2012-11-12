@@ -39,3 +39,20 @@ abbr {
 .mCSB_container {
     margin-right: 8px;
 }
+
+.navbar {
+	margin-left: 213px;
+}
+
+.navbar .brand {
+	margin-left: -10px;
+}
+
+.container {
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+.itemTable {
+	margin-top: 40px;
+}

@@ -33,6 +33,13 @@ app.get('/get_survivors', function(req, res){
         res.json(data);
     });
 });
+
+app.get('/get_weapon_stats', function(req, res){
+	survivors.getWeaponStats(function(data) {
+		res.json(data);
+	});
+});
+
 app.get('/', routes.index);
 
 http.createServer(app).listen(app.get('port'), function(){
