@@ -81,6 +81,26 @@
             </div>
         </div>
     </div>
+    <div class="modal hide fade" id="survivorDialog">
+        <div class="modal-header">
+            <button type="button" class="close" id="closeDialog" aria-hidden="true">&times;</button>
+            <h3><span></span><span data-bind="text: survivor.name"></span></h3>
+            <span class=""><i class="icon icon-screenshot"></i> <span data-bind="text: survivor.positionLabel"></span></span>
+        </div>
+        <div class="modal-body">
+            Health:
+            <div class="progress progress-danger">
+                <div class="bar" data-bind="style: { width: survivor.getBloodPercent }, text: survivor.bloodLabel"></div>
+            </div>
+            Humanity:
+            <div class="progress progress-info">
+                <div class="bar" data-bind="style: { width: survivor.getHumanityPercent }, text: survivor.humanityLabel"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn">Close</a>
+        </div>
+    </div>
     <div id="loadingOverlay">
         <div id="spinnerWrapper"></div>
     </div>

@@ -5,10 +5,23 @@ var Survivors = (function() {
     var selectedSurvivor = null;
     var renderedWeapons = 0;
     var weaponCount = 0;
+    var survivorIsActive = false;
     var viewModel = {
         survivors: ko.observableArray([]),
         weapons: ko.observableArray([]),
-        headline: ko.observable('Dashboard')
+        headline: ko.observable('Dashboard'),
+        survivor: {
+            name: ko.observable(''),
+            timeago: ko.observable(''),
+            blood: ko.observable(''),
+            bloodPercent: ko.observable(''),
+            getBloodPercent: ko.observable(''),
+            bloodLabel: ko.observable(''),
+            getHumanityPercent: ko.observable(''),
+            humanityPercent: ko.observable(''),
+            humanityLabel: ko.observable(''),
+            positionLabel: ko.observable('')
+        }
     };
 
     function loadSurvivors(callback) {
@@ -18,7 +31,7 @@ var Survivors = (function() {
             viewModel.survivors.removeAll();
             for(var i = 0; i < survivors.length; i++) {
                 if(selectedSurvivor == survivors[i].unique_id) {
-                    viewModel.headline(survivors[i].name);
+                    showSurvivor(survivors[i]);
                 }
                 viewModel.survivors.push(survivors[i]);
             }
@@ -43,6 +56,27 @@ var Survivors = (function() {
 			}
 		});
 	}
+
+    function showSurvivor(survivor) {
+        viewModel.survivor.name(survivor.name);
+        viewModel.survivor.timeago(survivor.timeago);
+        viewModel.survivor.blood(survivor.medical.blood);
+
+        viewModel.survivor.bloodPercent(survivor.medical.bloodPercent);
+        viewModel.survivor.getBloodPercent(survivor.medical.bloodPercent + '%');
+        viewModel.survivor.bloodLabel(survivor.medical.bloodPercent + '% (' + survivor.medical.blood + ')');
+
+        viewModel.survivor.humanityPercent(survivor.humanity.humanityPercent);
+        viewModel.survivor.getHumanityPercent(survivor.humanity.humanityPercent + '%');
+        viewModel.survivor.humanityLabel(survivor.humanity.humanity);
+
+        viewModel.survivor.positionLabel(survivor.worldspace.x + ' | ' + survivor.worldspace.y);
+
+        if(!survivorIsActive) {
+            $('#survivorDialog').modal('show');
+            survivorIsActive = true;
+        }
+    }
 
 	function startDashboard() {
 		loadWeapons(function() {
@@ -110,9 +144,11 @@ var Survivors = (function() {
 
 		if(key == 'survivor') {
 			selectedSurvivor = value;
+            survivorIsActive = false;
 			loadSurvivors();
 		}
 		if(key == '') {
+            $('#survivorDialog').modal('hide');
 			startDashboard();
 		}
 	}
@@ -125,6 +161,10 @@ var Survivors = (function() {
     $('.survivorList tr').live('click', function() {
 		var uniqueId = $('.survivorName', this).data('unique_id');
 		changeHash('survivor', uniqueId);
+    });
+
+    $('#closeDialog').click(function() {
+        window.location.hash = '#';
     });
 
 	$(window).hashchange(function() {
