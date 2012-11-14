@@ -26,6 +26,7 @@ app.configure('development', function(){
 });
 
 var Survivors = require('./lib/Survivors.js');
+var Vehicles = require('./lib/Vehicles.js');
 
 app.get('/get_survivors', function(req, res){
 	Survivors.getAll(function(data) {
@@ -35,6 +36,12 @@ app.get('/get_survivors', function(req, res){
 
 app.get('/get_weapon_stats', function(req, res){
 	Survivors.getWeaponStats(function(data) {
+		res.json(data);
+	});
+});
+
+app.get('/get_vehicles', function(req, res){
+	Vehicles.getAll(function(data) {
 		res.json(data);
 	});
 });

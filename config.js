@@ -1,8 +1,8 @@
 var config = {};
 
-config.db_host = 'localhost';
-config.db_username = 'dayz';
-config.db_password = 'CHANGEME';
+config.db_host = 'triton391.server4you.de';
+config.db_username = 'root';
+config.db_password = 'Lmvhphtmysql';
 config.db_database = 'dayz';
 
 config.worldname = 'chernarus';

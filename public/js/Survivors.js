@@ -2,14 +2,18 @@ var Survivors = (function() {
     "use strict";
 
     var survivors = [];
+    var vehicles = [];
     var selectedSurvivor = null;
     var renderedWeapons = 0;
+    var renderedVehicles = 0;
     var weaponCount = 0;
+    var vehicleCount = 0;
     var survivorIsActive = false;
     var viewModel = {
         survivors: ko.observableArray([]),
         weapons: ko.observableArray([]),
         headline: ko.observable('Dashboard'),
+        vehicles: ko.observableArray([]),
         survivor: {
             name: ko.observable(''),
             timeago: ko.observable(''),
@@ -28,6 +32,7 @@ var Survivors = (function() {
         $.getJSON('/get_survivors', function(data) {
             survivors = data;
             survivors = addTimestamps(survivors);
+            survivors = addAzimuthCss(survivors);
             viewModel.survivors.removeAll();
             for(var i = 0; i < survivors.length; i++) {
                 if(selectedSurvivor == survivors[i].unique_id) {
@@ -40,6 +45,21 @@ var Survivors = (function() {
             }
             calcHealthbar();
             determineRowColor();
+        });
+    }
+
+    function loadVehicles(callback) {
+        $.getJSON('/get_vehicles', function(data) {
+            vehicles = data;
+            vehicles = addTimestamps(vehicles);
+            viewModel.vehicles.removeAll();
+            vehicleCount = data.length;
+            for(var i = 0; i < vehicles.length; i++) {
+                viewModel.vehicles.push(vehicles[i]);
+            }
+            if(typeof callback === 'function') {
+                callback();
+            }
         });
     }
 
@@ -91,8 +111,21 @@ var Survivors = (function() {
     }
 
     function addTimestamps(survivors) {
+        if(!survivors) {
+            return survivors;
+        }
         for(var i = 0; i < survivors.length; i++) {
             survivors[i].timeago = $.timeago(survivors[i].last_updated);
+        }
+        return survivors;
+    }
+
+    function addAzimuthCss(survivors) {
+        if(!survivors) {
+            return survivors;
+        }
+        for(var i = 0; i < survivors.length; i++) {
+            survivors[i].azimuthCss = 'rotate(' +  survivors[i].worldspace.azimuth + 'deg)';
         }
         return survivors;
     }
@@ -124,6 +157,7 @@ var Survivors = (function() {
             offset = 0;
         }
         $elem.height($(window).height() - offset);
+        $elem.css({marginTop: offset});
         $elem.mCustomScrollbar({
             scrollInertia: 0
         });
@@ -155,6 +189,7 @@ var Survivors = (function() {
 
     function loadData() {
         loadSurvivors();
+        loadVehicles();
         loadWeapons();
     }
 
@@ -174,7 +209,8 @@ var Survivors = (function() {
     $().ready(function() {
         treatHashChange();
         loadSurvivors(init);
-        window.setInterval(loadData, 2000);
+        loadData();
+        window.setInterval(loadData, 20000);
     });
 
     return {
@@ -182,6 +218,12 @@ var Survivors = (function() {
             renderedWeapons++;
             if(renderedWeapons === weaponCount) {
                 calcSidebarHeight($('.itemTable'), 40);
+            }
+        },
+        afterRenderVehicles: function(data) {
+            renderedVehicles++;
+            if(renderedVehicles === vehicleCount) {
+                calcSidebarHeight($('.vehicleTable'), 40);
                 $('#loadingOverlay').fadeOut();
             }
         }
