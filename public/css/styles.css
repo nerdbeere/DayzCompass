@@ -71,3 +71,7 @@ abbr {
     left: 0;
     z-index: 9000;
 }
+
+.siteName {
+	font-weight: bold;
+}

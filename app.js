@@ -25,17 +25,16 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-var DayzSurvivors = require('./lib/DayzSurvivors.js');
-var survivors = new DayzSurvivors();
+var Survivors = require('./lib/Survivors.js');
 
 app.get('/get_survivors', function(req, res){
-    survivors.getAll(function(data) {
+	Survivors.getAll(function(data) {
         res.json(data);
     });
 });
 
 app.get('/get_weapon_stats', function(req, res){
-	survivors.getWeaponStats(function(data) {
+	Survivors.getWeaponStats(function(data) {
 		res.json(data);
 	});
 });

@@ -35,8 +35,15 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="survivorName" data-bind="attr: {'data-unique_id': unique_id}, text: name"></span>
-                                <abbr data-bind="text: timeago"></abbr>
+                                <span class="survivorName" data-bind="attr: {'data-unique_id': unique_id}">
+                                    <span data-bind="text: name"></span>
+                                    <span data-bind="visible: flags.sniper" class="label label-important">Sniper</span>
+                                </span>
+
+                                <abbr><span data-bind="text: timeago"></span> at <span data-bind="text: simplePos.x"></span>:<span data-bind="text: simplePos.y"></span></abbr>
+                                <div data-bind="visible: simplePos.name">
+                                    <abbr>near <span class="siteName" data-bind="text: simplePos.name"></span></abbr>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
