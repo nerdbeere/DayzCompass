@@ -1,9 +1,9 @@
 var config = {};
 
-config.db_host = 'triton391.server4you.de';
-config.db_username = 'root';
-config.db_password = 'Lmvhphtmysql';
-config.db_database = 'dayz';
+config.db_host = '';
+config.db_username = '';
+config.db_password = '';
+config.db_database = '';
 
 config.worldname = 'chernarus';
 
