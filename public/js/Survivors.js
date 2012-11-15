@@ -176,6 +176,7 @@ var Survivors = (function() {
 		var key = hashParts[0].replace(/#/g, '');
 		var value = hashParts[1];
 
+		$('.menuLink').removeClass('active');
 		if(key == 'survivor') {
 			selectedSurvivor = value;
             survivorIsActive = false;
@@ -183,7 +184,17 @@ var Survivors = (function() {
 		}
 		if(key == '') {
             $('#survivorDialog').modal('hide');
+			$('#mapView').hide();
+			$('#dashboardLink').addClass('active');
+			$('#dashboardView').show();
 			startDashboard();
+		}
+		if(key == 'map') {
+			$('#survivorDialog').modal('hide');
+			$('#dashboardView').hide();
+			$('#mapLink').addClass('active');
+			$('#mapView').show();
+			Map.initialize();
 		}
 	}
 
@@ -214,6 +225,9 @@ var Survivors = (function() {
     });
 
     return {
+		getSurvivors: function() {
+			return survivors;
+		},
         afterRenderItems: function(data) {
             renderedWeapons++;
             if(renderedWeapons === weaponCount) {

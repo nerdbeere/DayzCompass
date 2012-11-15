@@ -83,3 +83,11 @@ abbr {
 .bigTableHeadline {
     font-weight: bold;
 }
+
+#mapView {
+	margin-left: -27px;
+	margin-top: 40px;
+}
+
+.content {
+}
