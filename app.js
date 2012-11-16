@@ -27,6 +27,7 @@ app.configure('development', function(){
 
 var Survivors = require('./lib/Survivors.js');
 var Vehicles = require('./lib/Vehicles.js');
+var Rcon = require('./lib/Rcon.js');
 
 app.get('/get_survivors', function(req, res){
 	Survivors.getAll(function(data) {
