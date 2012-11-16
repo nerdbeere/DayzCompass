@@ -7,6 +7,12 @@ config.db_database = '';
 
 config.worldname = 'chernarus';
 
+config.rcon = {
+	host: '',
+	port: 2302,
+	password: ''
+};
+
 config.weapons = {
 	sniper: [
 		'DMR',
