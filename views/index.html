@@ -111,7 +111,6 @@
     </div>
     <div class="modal hide fade" id="survivorDialog">
         <div class="modal-header">
-            <button type="button" class="close" id="closeDialog" aria-hidden="true">&times;</button>
             <h3><span></span><span data-bind="text: survivor.name"></span></h3>
             <span class=""><i class="icon icon-screenshot"></i> <span data-bind="text: survivor.positionLabel"></span></span>
         </div>
@@ -126,7 +125,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#" class="btn">Close</a>
+            <a href="#" id="closeDialog" class="btn">Close</a>
         </div>
     </div>
     <div id="loadingOverlay">

@@ -4,12 +4,16 @@ var Map = {
 	marker: null,
 	mapMarkers: [],
 	MapContainer: null,
+	previousPositions: {},
+	cleanupTimeout: 0,
 
 	initialize: function() {
 
 		if(this.MapContainer) {
 			return this;
 		}
+
+		this.cleanupTimeout = +new Date();
 
 		this.MapContainer = $('#cherno-map');
 		this.MapContainer.width($(window).width() - 213);
@@ -275,9 +279,14 @@ var Map = {
 
 		var survivors = Survivors.getSurvivors();
 
-
 		var map = this.ChernoMap._map;
-		map.clearMarkers();
+
+		// Cleanup all markers every 30 seconds
+		if(this.cleanupTimeout < +new Date() - 30000) {
+			map.clearMarkers();
+			this.previousPositions ={};
+			this.cleanupTimeout = +new Date();
+		}
 
 		if(typeof survivors == 'undefined') {
 			return false;
@@ -285,6 +294,7 @@ var Map = {
 
 		for (i = 0; i < survivors.length; i++) {
 
+			// only show users which were active in the last 2 minutes
 			if(+new Date(survivors[i].last_updated) < +new Date() - 120000) {
 				continue;
 			}
@@ -296,22 +306,59 @@ var Map = {
 			var latRadians = (y / 64 - this.pixelOrigin_.y) / this.pixelsPerLonRadian_;
 			var lat = this.radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
 
+			// check if marker is already painted on the map
+			if(typeof this.previousPositions[survivors[i].unique_id] != 'undefined') {
+				// only reposition the marker if the position has changed
+				if(this.previousPositions[survivors[i].unique_id].x != x || this.previousPositions[survivors[i].unique_id].y != y) {
+					var walkCoords = [
+						new google.maps.LatLng(this.previousPositions[survivors[i].unique_id].lat, this.previousPositions[survivors[i].unique_id].lng),
+						new google.maps.LatLng(lat, lng)
+					];
+					var walkPath = new google.maps.Polyline({
+						path: walkCoords,
+						strokeColor: '#FF0000',
+						strokeOpacity: 0.7,
+						strokeWeight: 2
+					});
 
+					walkPath.setMap(map);
+
+					// cache current survivor position
+					this.previousPositions[survivors[i].unique_id].x = survivors[i].worldspace.x;
+					this.previousPositions[survivors[i].unique_id].y = survivors[i].worldspace.y;
+					this.previousPositions[survivors[i].unique_id].lat = lat;
+					this.previousPositions[survivors[i].unique_id].lng = lng;
+
+					this.previousPositions[survivors[i].unique_id].marker.setPosition(new google.maps.LatLng(lat, lng));
+				}
+				continue;
+			}
+
+			// create marker
 			this.marker = new google.maps.Marker({
 				position: new google.maps.LatLng(lat, lng),
 				map: map,
 				title: survivors[i].name,
-				survivorId: survivors[i].id,
-				clickable: true
+				survivorId: survivors[i].unique_id,
+				icon: '/img/male-2.png'
 			});
+
+
+			// cache current survivor position
+			this.previousPositions[survivors[i].unique_id] = {
+				x: survivors[i].worldspace.x,
+				y: survivors[i].worldspace.y,
+				lat: lat,
+				lng: lng,
+				marker: this.marker
+			};
 
 			this.mapMarkers.push(this.marker);
 
 			var that = this;
 			google.maps.event.addListener(this.marker, 'click', (function(marker, i) {
 				return function() {
-					that.infowindow.setContent(survivors[i].name);
-					that.infowindow.open(map, marker);
+					Survivors.changeHash('survivor', marker.survivorId);
 				}
 			})(this.marker, i));
 		}
