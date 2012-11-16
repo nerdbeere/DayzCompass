@@ -17,7 +17,6 @@ config.weapons = {
 	sniper: [
 		'DMR',
 		'M24',
-		'M14_EP1',
 		'BAF_L85A2_RIS_CWS'
 	]
 };
