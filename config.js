@@ -64,27 +64,44 @@ config.locations = {
 			y: 127,
 			offset_x: 16,
 			offset_y: 10
-		},
+		}
 	]
 };
 
+config.Connection = function() {
+	var connection;
+	return {
+		getConnection: function() {
+			connection = mysql.createConnection({
+				host: config.db_host,
+				user: config.db_username,
+				password: config.db_password,
+				database: config.db_database
+			});
+			connection.connect(function() {
+				console.log('new mysql connection established.');
+			});
+			return connection;
+		},
+		end: function(callback) {
+			connection.end(function(err) {
+				if(typeof callback === 'function') {
+					callback();
+				}
+			});
+		}
+	}
+};
+
 var mysql = require('mysql');
-
-config.connection = mysql.createConnection({
-	host: config.db_host,
-	user: config.db_username,
-	password: config.db_password,
-	database: config.db_database
-});
-
-config.connection.connect();
-
 config.world = null;
 config.getWorld = function(callback) {
 	if(this.world) {
 		callback(this.world);
 	}
-	config.connection.query('SELECT * FROM world WHERE name = "' + this.worldname + '";', function(err, rows, fields) {
+	var connection  = new config.Connection().getConnection();
+	connection.query('SELECT * FROM world WHERE name = "' + this.worldname + '";', function(err, rows, fields) {
+		connection.end();
 		if (err) {
 			throw err;
 		}
