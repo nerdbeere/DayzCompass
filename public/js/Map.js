@@ -60,43 +60,9 @@ var Map = {
 				streetViewControl: false
 			});
 			var map = this._map;
-			var pt2 = new google.maps.Point(5, 0.66);
-			//15360/zoom/256 = 30
-			// map.fromPointToLatLng(pt2, 2)
-			// 360/(x / xp) ||  180 - (y / yp)  left:1477.1 top:190.7
-			// Creating a marker and positioning it on the map  x = 45.5, y = 47.25 72.85  94.5 85.055, 180
-
-
-			function borders(){
-				return {
-					maxLat : map.getBounds().getNorthEast().lat(),
-					maxLng : map.getBounds().getNorthEast().lng(),
-					minLat : map.getBounds().getSouthWest().lat(),
-					minLng : map.getBounds().getSouthWest().lng(),
-					center : map.getCenter()
-				}
-			}
-
-
-			/* var marker = new google.maps.Marker({
-			 position: new google.maps.LatLng(84.6813202242, -147.544189453125),
-			 map: map,
-			 title: 'My workplace',
-			 clickable: true,
-			 //icon: 'http://google-maps-icons.googlecode.com/files/car.png',
-			 zIndex: 10
-			 });
-
-			 google.maps.event.addListener(marker, 'click', function () {
-			 // where I have added .html to the marker object.
-			 //alert(google.maps.MapCanvasProjection.getWorldWidth());
-			 infowindow.setContent('Hello world');
-			 infowindow.open(map, this);
-			 }); */
-
 
 			// Set custom tiles
-			this._map.mapTypes.set('cherno', new that.Demo.ImgMapType('cherno', '#000000'));
+			this._map.mapTypes.set('cherno', new that.Demo.ImgMapType('cherno', '#000'));
 			this._map.setMapTypeId('cherno');
 		};
 
@@ -104,7 +70,7 @@ var Map = {
 			for(var i = 0; i < that.mapMarkers.length; i++){
 				that.mapMarkers[i].setMap(null);
 			}
-			that.mapMarkers = new Array();
+			that.mapMarkers = [];
 		};
 
 		// ImgMapType class
