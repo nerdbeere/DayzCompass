@@ -230,6 +230,9 @@ var Survivors = (function() {
 		getSurvivors: function() {
 			return survivors;
 		},
+		getVehicles: function() {
+			return vehicles;
+		},
         afterRenderItems: function(data) {
             renderedWeapons++;
             if(renderedWeapons === weaponCount) {

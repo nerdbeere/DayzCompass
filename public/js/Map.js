@@ -5,7 +5,26 @@ var Map = {
 	mapMarkers: [],
 	MapContainer: null,
 	previousPositions: {},
+	previousVehiclePositions: {},
 	cleanupTimeout: 0,
+	vehicleIconMap: {
+		'UH1H_DZ': 'helicopter',
+		'Mi17_Civilian_Nam': 'helicopter',
+		'Smallboat_1': 'boat',
+		'Fishing_Boat': 'boat',
+		'PBX': 'boat',
+		'smallboat_2': 'boat',
+		'SUV_TK_CIV_EP1': 'sportutilityvehicle',
+		'UAZ_Unarmed_TK_EP1': 'fourbyfour',
+		'UAZ_Unarmed_TK_CIV_EP1': 'fourbyfour',
+		'UAZ_Unarmed_UN_EP1': 'fourbyfour',
+		'UAZ_RU': 'fourbyfour',
+		'LandRover_CZ_EP1': 'fourbyfour',
+		'V3S_Civ': 'truck3',
+		'TT650_Ins': 'motorcycle',
+		'TT650_TK_EP1': 'motorcycle',
+		'TT650_TK_CIV_EP1': 'motorcycle'
+	},
 
 	initialize: function() {
 
@@ -269,8 +288,11 @@ var Map = {
 			if (this.getZoom() < 2) this.setZoom(2);
 		});
 
-		setInterval(function() {that.pollMarkers();}, 1000);
-		that.pollMarkers();
+		setInterval(function() {that.showSurvivors();}, 1000);
+		that.showSurvivors();
+
+		setInterval(function() {that.showVehicles();}, 1000);
+		that.showVehicles();
 	},
 
 	degreesToRadians: function(deg) {
@@ -281,7 +303,24 @@ var Map = {
 		return rad / (Math.PI / 180);
 	},
 
-	pollMarkers: function() {
+	calcLocationData: function(data) {
+		var x = data.worldspace.x;
+		var y = Number(data.worldspace.y) + 1024;
+
+		var lng = (x / 64 - this.pixelOrigin_.x) / this.pixelsPerLonDegree_;
+		var latRadians = (y / 64 - this.pixelOrigin_.y) / this.pixelsPerLonRadian_;
+		var lat = this.radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
+
+		return {
+			x: x,
+			y: y,
+			lng: lng,
+			latRadians: latRadians,
+			lat: lat
+		};
+	},
+
+	showSurvivors: function() {
 
 		var survivors = Survivors.getSurvivors();
 
@@ -290,7 +329,7 @@ var Map = {
 		// Cleanup all markers every 30 seconds
 		if(this.cleanupTimeout < +new Date() - 30000) {
 			map.clearMarkers();
-			this.previousPositions ={};
+			this.previousVehiclePositions ={};
 			this.cleanupTimeout = +new Date();
 		}
 
@@ -305,20 +344,15 @@ var Map = {
 				continue;
 			}
 
-			var x = survivors[i].worldspace.x;
-			var y = Number(survivors[i].worldspace.y) + 1024;
-
-			var lng = (x / 64 - this.pixelOrigin_.x) / this.pixelsPerLonDegree_;
-			var latRadians = (y / 64 - this.pixelOrigin_.y) / this.pixelsPerLonRadian_;
-			var lat = this.radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
+			var location = this.calcLocationData(survivors[i]);
 
 			// check if marker is already painted on the map
 			if(typeof this.previousPositions[survivors[i].unique_id] != 'undefined') {
 				// only reposition the marker if the position has changed
-				if(this.previousPositions[survivors[i].unique_id].x != x || this.previousPositions[survivors[i].unique_id].y != y) {
+				if(this.previousPositions[survivors[i].unique_id].x != location.x || this.previousPositions[survivors[i].unique_id].y != location.y) {
 					var walkCoords = [
 						new google.maps.LatLng(this.previousPositions[survivors[i].unique_id].lat, this.previousPositions[survivors[i].unique_id].lng),
-						new google.maps.LatLng(lat, lng)
+						new google.maps.LatLng(location.lat, location.lng)
 					];
 					var walkPath = new google.maps.Polyline({
 						path: walkCoords,
@@ -332,17 +366,17 @@ var Map = {
 					// cache current survivor position
 					this.previousPositions[survivors[i].unique_id].x = survivors[i].worldspace.x;
 					this.previousPositions[survivors[i].unique_id].y = survivors[i].worldspace.y;
-					this.previousPositions[survivors[i].unique_id].lat = lat;
-					this.previousPositions[survivors[i].unique_id].lng = lng;
+					this.previousPositions[survivors[i].unique_id].lat = location.lat;
+					this.previousPositions[survivors[i].unique_id].lng = location.lng;
 
-					this.previousPositions[survivors[i].unique_id].marker.setPosition(new google.maps.LatLng(lat, lng));
+					this.previousPositions[survivors[i].unique_id].marker.setPosition(new google.maps.LatLng(location.lat, location.lng));
 				}
 				continue;
 			}
 
 			// create marker
 			this.marker = new google.maps.Marker({
-				position: new google.maps.LatLng(lat, lng),
+				position: new google.maps.LatLng(location.lat, location.lng),
 				map: map,
 				title: survivors[i].name,
 				survivorId: survivors[i].unique_id,
@@ -354,8 +388,8 @@ var Map = {
 			this.previousPositions[survivors[i].unique_id] = {
 				x: survivors[i].worldspace.x,
 				y: survivors[i].worldspace.y,
-				lat: lat,
-				lng: lng,
+				lat: location.lat,
+				lng: location.lng,
 				marker: this.marker
 			};
 
@@ -368,6 +402,73 @@ var Map = {
 				}
 			})(this.marker, i));
 		}
+	},
+
+	showVehicles: function() {
+
+		var vehicles = Survivors.getVehicles();
+
+		var map = this.ChernoMap._map;
+
+		// Cleanup all markers every 30 seconds
+		if(this.cleanupTimeout < +new Date() - 30000) {
+			map.clearMarkers();
+			this.previousVehiclePositions ={};
+			this.cleanupTimeout = +new Date();
+		}
+
+		if(typeof vehicles == 'undefined') {
+			return false;
+		}
+
+		for (i = 0; i < vehicles.length; i++) {
+
+			var location = this.calcLocationData(vehicles[i]);
+
+			// check if marker is already painted on the map
+			if(typeof this.previousVehiclePositions[vehicles[i].id] != 'undefined') {
+				// only reposition the marker if the position has changed
+				if(this.previousVehiclePositions[vehicles[i].id].x != location.x || this.previousVehiclePositions[vehicles[i].id].y != location.y) {
+
+					// cache current survivor position
+					this.previousVehiclePositions[vehicles[i].id].x = vehicles[i].worldspace.x;
+					this.previousVehiclePositions[vehicles[i].id].y = vehicles[i].worldspace.y;
+					this.previousVehiclePositions[vehicles[i].id].lat = location.lat;
+					this.previousVehiclePositions[vehicles[i].id].lng = location.lng;
+
+					this.previousVehiclePositions[vehicles[i].id].marker.setPosition(new google.maps.LatLng(location.lat, location.lng));
+				}
+				continue;
+			}
+
+			// create marker
+			this.marker = new google.maps.Marker({
+				position: new google.maps.LatLng(location.lat, location.lng),
+				map: map,
+				title: vehicles[i].name,
+				survivorId: vehicles[i].id,
+				icon: this.getVehicleIconByClassName(vehicles[i].class_name)
+			});
+
+
+			// cache current survivor position
+			this.previousVehiclePositions[vehicles[i].id] = {
+				x: vehicles[i].worldspace.x,
+				y: vehicles[i].worldspace.y,
+				lat: location.lat,
+				lng: location.lng,
+				marker: this.marker
+			};
+
+			this.mapMarkers.push(this.marker);
+		}
+	},
+
+	getVehicleIconByClassName: function(className) {
+		if(typeof this.vehicleIconMap[className] == 'undefined') {
+			return '/img/icons/car.png';
+		}
+		return '/img/icons/' + this.vehicleIconMap[className] + '.png';
 	}
 };
 
