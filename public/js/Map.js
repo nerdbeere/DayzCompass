@@ -6,8 +6,9 @@ var Map = {
 	MapContainer: null,
 	previousPositions: {},
 	previousVehiclePositions: {},
+	previousDeployablePositions: {},
 	cleanupTimeout: 0,
-	vehicleIconMap: {
+	iconMap: {
 		'UH1H_DZ': 'helicopter',
 		'Mi17_Civilian_Nam': 'helicopter',
 		'Smallboat_1': 'boat',
@@ -35,7 +36,7 @@ var Map = {
 		this.cleanupTimeout = +new Date();
 
 		this.MapContainer = $('#cherno-map');
-		this.MapContainer.width($(window).width() - 213);
+		this.MapContainer.width($(window).width() - 253);
 		this.MapContainer.height($(window).height() - 40);
 
 		this.Demo.ImagesBaseUrl = 'http://xrayalpha.de/BlissAdmin/' + 'tiles/';
@@ -254,11 +255,26 @@ var Map = {
 			if (this.getZoom() < 2) this.setZoom(2);
 		});
 
-		setInterval(function() {that.showSurvivors();}, 1000);
-		that.showSurvivors();
+		setInterval(function() {
 
-		setInterval(function() {that.showVehicles();}, 1000);
+			// Cleanup all markers every 30 seconds
+			if(that.cleanupTimeout < +new Date() - 30000) {
+				that.ChernoMap._map.clearMarkers();
+				that.previousVehiclePositions = {};
+				that.previousDeployablePositions = {};
+				that.previousVehiclePositions = {};
+
+				that.cleanupTimeout = +new Date();
+			}
+
+			that.showSurvivors();
+			that.showVehicles();
+			that.showDeployables();
+		}, 1000);
+
+		that.showSurvivors();
 		that.showVehicles();
+		that.showDeployables();
 	},
 
 	degreesToRadians: function(deg) {
@@ -291,13 +307,6 @@ var Map = {
 		var survivors = Survivors.getSurvivors();
 
 		var map = this.ChernoMap._map;
-
-		// Cleanup all markers every 30 seconds
-		if(this.cleanupTimeout < +new Date() - 30000) {
-			map.clearMarkers();
-			this.previousVehiclePositions ={};
-			this.cleanupTimeout = +new Date();
-		}
 
 		if(typeof survivors == 'undefined') {
 			return false;
@@ -376,13 +385,6 @@ var Map = {
 
 		var map = this.ChernoMap._map;
 
-		// Cleanup all markers every 30 seconds
-		if(this.cleanupTimeout < +new Date() - 30000) {
-			map.clearMarkers();
-			this.previousVehiclePositions ={};
-			this.cleanupTimeout = +new Date();
-		}
-
 		if(typeof vehicles == 'undefined') {
 			return false;
 		}
@@ -413,7 +415,7 @@ var Map = {
 				map: map,
 				title: vehicles[i].name,
 				survivorId: vehicles[i].id,
-				icon: this.getVehicleIconByClassName(vehicles[i].class_name)
+				icon: this.getIconByClassName('car', vehicles[i].class_name)
 			});
 
 
@@ -430,11 +432,52 @@ var Map = {
 		}
 	},
 
-	getVehicleIconByClassName: function(className) {
-		if(typeof this.vehicleIconMap[className] == 'undefined') {
-			return '/img/icons/car.png';
+	showDeployables: function() {
+
+		var deployables = Survivors.getDeployables();
+
+		var map = this.ChernoMap._map;
+
+		if(typeof deployables == 'undefined') {
+			return false;
 		}
-		return '/img/icons/' + this.vehicleIconMap[className] + '.png';
+
+		for (i = 0; i < deployables.length; i++) {
+
+			var location = this.calcLocationData(deployables[i]);
+
+			// check if marker is already painted on the map
+			if(typeof this.previousDeployablePositions[deployables[i].id] != 'undefined') {
+				continue;
+			}
+
+			// create marker
+			this.marker = new google.maps.Marker({
+				position: new google.maps.LatLng(location.lat, location.lng),
+				map: map,
+				title: deployables[i].name,
+				survivorId: deployables[i].id,
+				icon: this.getIconByClassName('constructioncrane', deployables[i].class_name)
+			});
+
+
+			// cache current survivor position
+			this.previousDeployablePositions[deployables[i].id] = {
+				x: deployables[i].worldspace.x,
+				y: deployables[i].worldspace.y,
+				lat: location.lat,
+				lng: location.lng,
+				marker: this.marker
+			};
+
+			this.mapMarkers.push(this.marker);
+		}
+	},
+
+	getIconByClassName: function(fallback, className) {
+		if(typeof this.iconMap[className] == 'undefined') {
+			return '/img/icons/' + fallback + '.png';
+		}
+		return '/img/icons/' + this.iconMap[className] + '.png';
 	}
 };
-

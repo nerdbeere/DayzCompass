@@ -6,11 +6,12 @@ abbr {
     height: 600px;
     margin-left: 0px;
     overflow: hidden;
+	width: 260px;
 }
 
 .survivorList {
     margin-left: 0px;
-    width: 220px;
+	width: 260px;
 }
 
 .survivorList {
@@ -42,7 +43,7 @@ abbr {
 }
 
 .navbar {
-	margin-left: 213px;
+
 }
 
 .navbar .brand {
@@ -90,4 +91,9 @@ abbr {
 }
 
 .content {
+}
+
+.console {
+	margin-left: -18px;
+	margin-top: 40px;
 }

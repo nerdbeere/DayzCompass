@@ -40,6 +40,9 @@
                                 <span class="survivorName" data-bind="attr: {'data-unique_id': unique_id}">
                                     <span data-bind="text: name" class="bigTableHeadline"></span>
                                     <span data-bind="visible: flags.sniper" class="label label-important">Sniper</span>
+                                    <span data-bind="visible: flags.nvgoggles" class="label label-warning">NV</span>
+                                    <span data-bind="visible: flags.gps" class="label label-warning">GPS</span>
+                                    <span data-bind="visible: flags.vector" class="label label-warning">BV</span>
                                 </span>
 
                                 <abbr><span data-bind="text: timeago"></span> at <span data-bind="text: simplePos.x"></span>:<span data-bind="text: simplePos.y"></span></abbr>
@@ -51,7 +54,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="span9 content">
+            <div class="span6 content">
                 <div class="navbar navbar-fixed-top">
                     <div class="navbar-inner">
                         <div class="container">
@@ -69,7 +72,7 @@
                 <div id="mapView">
                     <div id="cherno-map" style="height:750px;"></div>
                 </div>
-                <div class="span9 hide" id="dashboardView">
+                <div class="hide" id="dashboardView">
                     <div id="dashboard" class="">
                         <div class="span3 itemTable">
                             <table class="table table-striped table-hover">
@@ -103,15 +106,30 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="span3"></div>
                     </div>
                 </div>
+            </div>
+            <div class="console span9">
+                <table class="table table-striped table-hover">
+                    <tbody data-bind="foreach: {data: console}">
+                    <tr>
+                        <td data-bind="text: time"></td>
+                        <td data-bind="text: text"></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
     <div class="modal hide fade" id="survivorDialog">
         <div class="modal-header">
-            <h3><span></span><span data-bind="text: survivor.name"></span></h3>
+            <h3>
+                <span data-bind="text: survivor.name"></span>
+                <span data-bind="visible: survivor.sniperFlag" class="label label-important">Sniper</span>
+                <span data-bind="visible: survivor.nvFlag" class="label label-warning">NV</span>
+                <span data-bind="visible: survivor.gpsFlag" class="label label-warning">GPS</span>
+                <span data-bind="visible: survivor.bvFlag" class="label label-warning">BV</span>
+            </h3>
             <span class=""><i class="icon icon-screenshot"></i> <span data-bind="text: survivor.positionLabel"></span></span>
         </div>
         <div class="modal-body">

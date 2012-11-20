@@ -1,8 +1,13 @@
 var Survivors = (function() {
     "use strict";
 
+	var PLAYER_COUNT = 'PLAYER_COUNT';
+	var VEHICLE_COUNT = 'VEHICLE_COUNT';
+	var DEPLOYABLE_COUNT = 'VEHICLE_COUNT';
+
     var survivors = [];
     var vehicles = [];
+    var deployables = [];
     var selectedSurvivor = null;
     var renderedWeapons = 0;
     var renderedVehicles = 0;
@@ -15,6 +20,7 @@ var Survivors = (function() {
         weapons: ko.observableArray([]),
         headline: ko.observable('Dashboard'),
         vehicles: ko.observableArray([]),
+		deployables: ko.observableArray([]),
         survivor: {
             name: ko.observable(''),
             timeago: ko.observable(''),
@@ -25,8 +31,13 @@ var Survivors = (function() {
             getHumanityPercent: ko.observable(''),
             humanityPercent: ko.observable(''),
             humanityLabel: ko.observable(''),
-            positionLabel: ko.observable('')
-        }
+            positionLabel: ko.observable(''),
+			sniperFlag: ko.observable(false),
+			nvFlag: ko.observable(false),
+			gpsFlag: ko.observable(false),
+			bvFlag: ko.observable(false)
+        },
+		console: ko.observableArray([])
     };
 
     function loadSurvivors(callback) {
@@ -35,6 +46,7 @@ var Survivors = (function() {
             survivors = addTimestamps(survivors);
             survivors = addAzimuthCss(survivors);
             viewModel.survivors.removeAll();
+			addConsoleMessage(PLAYER_COUNT, survivors.length);
             for(var i = 0; i < survivors.length; i++) {
                 if(selectedSurvivor == survivors[i].unique_id) {
                     showSurvivor(survivors[i]);
@@ -55,6 +67,7 @@ var Survivors = (function() {
             vehicles = addTimestamps(vehicles);
             viewModel.vehicles.removeAll();
             vehicleCount = data.length;
+			addConsoleMessage(VEHICLE_COUNT, vehicles.length);
             for(var i = 0; i < vehicles.length; i++) {
                 viewModel.vehicles.push(vehicles[i]);
             }
@@ -63,6 +76,44 @@ var Survivors = (function() {
             }
         });
     }
+
+    function loadDeployables(callback) {
+        $.getJSON('/get_deployables', function(data) {
+            deployables = data;
+			deployables = addTimestamps(deployables);
+            viewModel.deployables.removeAll();
+            vehicleCount = data.length;
+			addConsoleMessage(DEPLOYABLE_COUNT, deployables.length);
+            for(var i = 0; i < deployables.length; i++) {
+                viewModel.deployables.push(deployables[i]);
+            }
+            if(typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+	function addConsoleMessage(type, data) {
+		if(type === PLAYER_COUNT) {
+			var message = {
+				text: 'Finished loading ' + data + ' survivors from server.',
+				time: +new Date()
+			}
+		}
+		if(type === VEHICLE_COUNT) {
+			var message = {
+				text: 'Finished loading ' + data + ' vehicles from server.',
+				time: +new Date()
+			}
+		}
+		if(type === DEPLOYABLE_COUNT) {
+			var message = {
+				text: 'Finished loading ' + data + ' deployables from server.',
+				time: +new Date()
+			}
+		}
+		viewModel.console.push(message);
+	}
 
 	function loadWeapons(callback) {
         renderedWeapons = 0;
@@ -155,7 +206,7 @@ var Survivors = (function() {
             return $elem.mCustomScrollbar('update');
         }
         if(typeof offset === 'undefined') {
-            offset = 0;
+            offset = 40;
         }
         $elem.height($(window).height() - offset);
         $elem.css({marginTop: offset});
@@ -203,6 +254,7 @@ var Survivors = (function() {
         loadSurvivors();
         loadVehicles();
         loadWeapons();
+        loadDeployables();
     }
 
     $('.survivorList tr').live('click', function() {
@@ -233,16 +285,19 @@ var Survivors = (function() {
 		getVehicles: function() {
 			return vehicles;
 		},
+		getDeployables: function() {
+			return deployables;
+		},
         afterRenderItems: function(data) {
             renderedWeapons++;
             if(renderedWeapons === weaponCount) {
-                calcSidebarHeight($('.itemTable'), 40);
+                calcSidebarHeight($('.itemTable'));
             }
         },
         afterRenderVehicles: function(data) {
             renderedVehicles++;
             if(renderedVehicles === vehicleCount) {
-                calcSidebarHeight($('.vehicleTable'), 40);
+                calcSidebarHeight($('.vehicleTable'));
                 $('#loadingOverlay').fadeOut();
             }
         },
