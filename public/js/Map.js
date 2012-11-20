@@ -263,6 +263,12 @@ var Map = {
 
 		that.ChernoMap;
 		that.ChernoMap = new that.Demo.ChernoMap(document.getElementById('cherno-map'));
+
+		google.maps.event.addListener(this.ChernoMap._map, 'zoom_changed', function() {
+
+			if (this.getZoom() < 2) this.setZoom(2);
+		});
+
 		setInterval(function() {that.pollMarkers();}, 1000);
 		that.pollMarkers();
 	},
@@ -340,7 +346,7 @@ var Map = {
 				map: map,
 				title: survivors[i].name,
 				survivorId: survivors[i].unique_id,
-				icon: '/img/male-2.png'
+				icon: '/img/icons/male-2.png'
 			});
 
 
