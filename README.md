@@ -1,4 +1,5 @@
 ![Map View](https://raw.github.com/nerdbeere/DayzCompass/master/screens/screen_1.png)
+![Map View](https://raw.github.com/nerdbeere/DayzCompass/master/screens/screen_2.png)
 
 Install
 =============

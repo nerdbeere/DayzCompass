@@ -1,16 +1,16 @@
 var config = {};
 
-config.db_host = '';
-config.db_username = '';
-config.db_password = '';
-config.db_database = '';
+config.db_host = 'triton391.server4you.de';
+config.db_username = 'julian';
+config.db_password = 'LmvhphtJulian';
+config.db_database = 'dayz';
 
 config.worldname = 'chernarus';
 
 config.rcon = {
-	host: '',
+	host: 'triton391.server4you.de',
 	port: 2302,
-	password: ''
+	password: '6ef4a3de'
 };
 
 config.weapons = {
