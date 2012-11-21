@@ -10,6 +10,9 @@
     "ejs": "*",
     "mysql": "*",
     "pd": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "express-sessions": "*"
   }
 }
