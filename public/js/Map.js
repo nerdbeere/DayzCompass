@@ -260,7 +260,7 @@ var Map = {
 			// Cleanup all markers every 30 seconds
 			if(that.cleanupTimeout < +new Date() - 30000) {
 				that.ChernoMap._map.clearMarkers();
-				that.previousSurvivorPositions = {};
+				that.previousPositions = {};
 				that.previousDeployablePositions = {};
 				that.previousVehiclePositions = {};
 
